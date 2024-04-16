@@ -226,12 +226,6 @@ func (h *ec2APIHelper) GetSubnet(subnetId *string) (*ec2.Subnet, error) {
 func (h *ec2APIHelper) DeleteNetworkInterface(interfaceId *string) error {
 	deleteNetworkInterface := &ec2.DeleteNetworkInterfaceInput{
 		NetworkInterfaceId: interfaceId,
-		Filters: []*ec2.Filter{
-			{
-				Name:   aws.String("vpc-id"),
-				Values: []*string{&h.workerNodeVpcId},
-			},
-		},
 	}
 
 	err := retry.OnError(defaultBackOff, func(err error) bool { return true }, func() error {
@@ -261,6 +255,12 @@ func (h *ec2APIHelper) GetInstanceNetworkInterface(instanceId *string) ([]*ec2.I
 func (h *ec2APIHelper) DescribeNetworkInterfaces(nwInterfaceIds []*string) ([]*ec2.NetworkInterface, error) {
 	describeNetworkInterfacesInput := &ec2.DescribeNetworkInterfacesInput{
 		NetworkInterfaceIds: nwInterfaceIds,
+		Filters: []*ec2.Filter{
+			{
+				Name:   aws.String("vpc-id"),
+				Values: []*string{&h.workerNodeVpcId},
+			},
+		},
 	}
 	describeNetworkInterfaceOutput, err := h.ec2Wrapper.DescribeNetworkInterfaces(describeNetworkInterfacesInput)
 	if err != nil {
